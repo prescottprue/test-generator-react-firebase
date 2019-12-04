@@ -100,7 +100,7 @@ jobs:
           install: false
           record: true
           group: 'E2E Tests'
-          start: npm run serve -- --project $FIREBASE_PROJECT
+          start: $(npm bin)/firebase-ci serve
           wait-on: http://localhost:3000
           # wait for 3 minutes for the server to respond
           wait-on-timeout: 180

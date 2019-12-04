@@ -18,9 +18,9 @@
           "messagingSenderId": "35186611144",
           "appId": "1:35186611144:web:4af435c0ea7b1f421fe6fd"
         },
-        "sentryDsn": "${SENTRY_DSN}",
-        "segmentId": "${GA_TRACKING_ID}",
-        "publicVapidKey": "${STAGE_PUBLIC_VAPID_KEY}"
+        "sentryDsn": "",
+        "segmentId": "",
+        "publicVapidKey": "BGH9wcHjx1iYORhlCS86iir7sMdfVf3ZV6uc74ERz4DEWwH_V6L7RU9Wtcmsp_AFWs2RVWs4LjzoSKTi7rF-uzY"
       },
       "prod": {
         "env": "production",
@@ -33,9 +33,9 @@
           "messagingSenderId": "35186611144",
           "appId": "1:35186611144:web:4af435c0ea7b1f421fe6fd"
         },
-        "sentryDsn": "${SENTRY_DSN}",
-        "segmentId": "${GA_TRACKING_ID}",
-        "publicVapidKey": "${PROD_PUBLIC_VAPID_KEY}"
+        "sentryDsn": "",
+        "segmentId": "",
+        "publicVapidKey": "BGH9wcHjx1iYORhlCS86iir7sMdfVf3ZV6uc74ERz4DEWwH_V6L7RU9Wtcmsp_AFWs2RVWs4LjzoSKTi7rF-uzY"
       }
     }
   }

@@ -7,115 +7,153 @@ on:
       - prod
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-20.04
+    if: github.actor != 'dependabot[bot]'
+    timeout-minutes: 20
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout Repo
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2.4.1
         with:
-          node-version: 10
+          node-version: 14
 
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Get Library Versions For Binary Caching
+        id: cache-settings
+        run: |
+          echo "::set-output name=dir::$(yarn cache dir)"
 
-      - name: Cache npm dependencies
-        uses: actions/cache@v1
+      - name: Cache App Dependencies
+        uses: actions/cache@v2.1.6
         with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          path: ${{ steps.cache-settings.outputs.dir }}
+          key: ${{ runner.os }}-app-${{ hashFiles('yarn.lock') }}
 
       - name: Install Dependencies
         env:
-          CI: true
           CYPRESS_INSTALL_BINARY: 0 # Skip install of Cypress (handled in its own job)
           HUSKY_SKIP_INSTALL: 1 # Skip install of Husky
         run: |
           yarn install --frozen-lockfile
           yarn --cwd functions install --frozen-lockfile
+
+      - name: Set environment
+        run: |
+          # Get branch name from github ref (i.e. refs/heads/master -> master)
+          gitBranch=${GITHUB_REF##*/}
+
+          # Find the config associated to the firebase project in .firebaserc (falling back to default)
+          gcloudProject=$(cat .firebaserc | jq -r --arg alias "$gitBranch" '.projects[$alias] // .projects.default')
+          appName=test-generator-react-firebase
+
+          echo "Setting environment for branch: $gitBranch, project: $gcloudProject, and app: $appName..."
+
+          # Set variables to environment to be used in later steps
+          echo "GCLOUD_PROJECT=$gcloudProject" >> $GITHUB_ENV
+          echo "NODE_CONFIG_ENV=$branch" >> $GITHUB_ENV
+          echo "ENV=$branch" >> $GITHUB_ENV
+
+      - name: Generate Firebase SDK config for ${{ env.GCLOUD_PROJECT }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          set -o pipefail
+
+          # Throw a clear error if FIREBASE_TOKEN secret is not set
+          if [ -z "$FIREBASE_TOKEN" ];
+            then
+              missingTokenErrMsg="\"FIREBASE_TOKEN\" github secret is required to load project configuration. Visit https://github.com/${{ github.repository }}/settings/secrets to set."
+              echo "::error ::$missingTokenErrMsg"
+              exit 1
+          fi
+
+          bin/generate-firebase-sdk-config.js --file ./config/default.json
 
       - name: Verify App
         run: |
-          yarn build:config # Create env specific src/config.js
           yarn lint # Check for lint in app code
-          yarn build # Build app bundles
 
-      - name: Verify Functions
+      - name: Build Functions
         run: |
-          yarn --cwd functions test:cov # Run unit tests with coverage
-          yarn --cwd functions build
+          yarn functions:build
 
+      - name: Build App
+        run: |
+          yarn build
+
+      # Archive build in case it needs to be downloaded later for debugging
       - name: Archive Build Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
           name: build
           path: build
-
-      - name: Archive Functions Artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: functions-build
-          path: functions/dist
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: build
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: functions-build
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 10
-
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install Dependencies
-        env:
-          CI: true
-          CYPRESS_INSTALL_BINARY: 0 # Skip install of Cypress (handled in its own job)
-          HUSKY_SKIP_INSTALL: 1 # Skip install of Husky
-        run: |
-          yarn install --frozen-lockfile
-          yarn --cwd functions install --frozen-lockfile
 
       - name: Deploy to Firebase
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GITHUB_REF: ${{ github.ref }}
-        run: $(npm bin)/firebase-ci deploy -s
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+        # Deploy to project associated with branch name alias in .firebaserc with message set to commit's message.
+        # Force flag is used to automatically delete any removed cloud functions
+        run: |
+          $(yarn bin)/firebase-ci deploy -s --force
 
-      - name: Archive Debug Log
-        uses: actions/upload-artifact@master
-        if: failure()
+      # Archive debug logs if deploy fails
+      - name: Archive Debug Logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
         with:
-          name: firebase-debug
-          path: firebase-debug.log
+          name: debug-logs
+          path: ./*.log
+
+      - name: Check if version has been updated
+        if: github.ref == 'refs/heads/prod'
+        id: check
+        uses: EndBug/version-check@v2.0.1
+
+      - name: Create Github Release
+        if: github.ref == 'refs/heads/prod' && steps.check.outputs.changed == 'true'
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: v${{ env.PACKAGE_VERSION }}
+          release_name: v${{ env.PACKAGE_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Create Sentry Release
+        if: github.ref == 'refs/heads/prod' && steps.check.outputs.changed == 'true'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: prescottprue
+          SENTRY_PROJECT: test-generator-react-firebase
+        run: |
+          # Throw a clear error if SENTRY_AUTH_TOKEN secret is not set
+          if [ -z "$SENTRY_AUTH_TOKEN" ];
+            then
+              warningMsg="\"SENTRY_AUTH_TOKEN\" github secret is required to create releases in Sentry. Visit https://github.com/${{ github.repository }}/settings/secrets to set."
+              echo "::warning ::$warningMsg"
+              exit 0
+          fi
+          gitBranch=${GITHUB_REF##*/}
+          releaseSuffix=$(if [ $gitBranch != "prod" ]; then echo $gitBranch; fi;)@$PACKAGE_VERSION
+          releaseName=test-generator-react-firebase-$releaseSuffix
+
+          echo Creating Sentry release \"$releaseName\" for project \"$SENTRY_PROJECT\"...
+          $(yarn bin)/sentry-cli releases new $releaseName --finalize
+
+          echo Uploading source maps to Sentry release...
+          $(yarn bin)/sentry-cli releases files $releaseName upload-sourcemaps ./build/static/js --no-rewrite
+
+          echo Associating commits with the Sentry release...
+          $(yarn bin)/sentry-cli releases set-commits --auto $PACKAGE_VERSION

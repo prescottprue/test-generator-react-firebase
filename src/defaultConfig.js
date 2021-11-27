@@ -1,4 +1,3 @@
-import { initializeMessaging } from 'utils/firebaseMessaging'
 import { setAnalyticsUser } from 'utils/analytics'
 import { setErrorUser } from 'utils/errorHandler'
 
@@ -18,8 +17,6 @@ export const defaultRRFConfig = {
     if (auth) {
       // Set auth within error handler
       setErrorUser(auth)
-      // Initalize messaging with dispatch
-      initializeMessaging(dispatch)
       // Set auth within analytics
       setAnalyticsUser(auth)
     }

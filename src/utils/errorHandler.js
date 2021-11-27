@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/browser'
-import { firebase, sentryDsn, env as environment } from '../config'
+import StackdriverErrorReporter from 'stackdriver-errors-js'
+import config from 'config'
 import { version } from '../../package.json'
 
 let errorHandler // eslint-disable-line import/no-mutable-exports
@@ -8,28 +9,31 @@ let errorHandler // eslint-disable-line import/no-mutable-exports
  * Initialize Stackdriver Error Reporter only if api key exists
  */
 function initStackdriverErrorReporter() {
-  if (typeof window.StackdriverErrorReporter === 'function') {
-    window.addEventListener('DOMContentLoaded', () => {
-      const errorHandler = new window.StackdriverErrorReporter()
-      errorHandler.start({
-        key: firebase.apiKey,
-        projectId: firebase.projectId,
-        service: 'test-generator-react-firebase-site',
-        version
-      })
+  try {
+    errorHandler = new StackdriverErrorReporter()
+    errorHandler.start({
+      key: config.firebase.apiKey,
+      projectId: config.firebase.projectId,
+      service: 'test-generator-react-firebase-site',
+      version
     })
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(
+      'Error setting up stackdriver client side error reporting',
+      err
+    )
   }
-  return errorHandler
 }
 
 /**
  * Initialize Sentry (reports to sentry.io)
  */
 function initSentry() {
-  if (environment !== 'dev') {
+  if (config.sentry.enabled) {
     Sentry.init({
-      dsn: sentryDsn,
-      environment,
+      dsn: config.sentry.dsn,
+      environment: config.environment,
       release: version
     })
   }
@@ -40,7 +44,7 @@ function initSentry() {
  * initialized if in production environment.
  */
 export function init() {
-  if (environment !== 'dev') {
+  if (!window.location.hostname.includes('localhost') && !window.Cypress) {
     initStackdriverErrorReporter()
     initSentry()
   } else {
@@ -55,13 +59,13 @@ export function init() {
  * @param {String} auth.uid - User's id
  */
 export function setErrorUser(auth) {
-  if (auth && auth.uid && environment !== 'dev') {
+  if (auth?.uid) {
     // Set user within Stackdriver
-    if (errorHandler && errorHandler.setUser) {
+    if (errorHandler?.setUser) {
       errorHandler.setUser(auth.uid)
     }
     // Set user within Sentry
-    Sentry.configureScope(scope => {
+    Sentry.configureScope((scope) => {
       scope.setUser({
         id: auth.uid,
         email: auth.email || 'none'

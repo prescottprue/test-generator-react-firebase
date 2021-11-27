@@ -1,0 +1,39 @@
+name: Delete Preview Channel
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+concurrency:
+  group: delete-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 14.x
+
+jobs:
+  check:
+    name: Delete Channel
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: actions/setup-node@v2.4.1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Remove Preview Channel
+        env:
+          GCLOUD_PROJECT: test-a2947
+          PR_NUMBER: ${{ github.event.number }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          ./bin/remove-preview-channel.js --pullRequest=$PR_NUMBER

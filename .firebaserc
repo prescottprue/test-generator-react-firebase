@@ -1,42 +1,7 @@
 {
   "projects": {
     "default": "test-a2947",
-    "master": "test-a2947",
+    "main": "test-a2947",
     "prod": "test-a2947"
-  },
-  "ci": {
-    "copyVersion": true,
-    "createConfig": {
-      "master": {
-        "env": "staging",
-        "firebase": {
-          "apiKey": "AIzaSyDRPua331Q_howRoiAo4bTJFpac0jC_OSM",
-          "authDomain": "test-a2947.firebaseapp.com",
-          "databaseURL": "https://test-a2947.firebaseio.com",
-          "projectId": "test-a2947",
-          "storageBucket": "test-a2947.appspot.com",
-          "messagingSenderId": "35186611144",
-          "appId": "1:35186611144:web:4af435c0ea7b1f421fe6fd"
-        },
-        "sentryDsn": "",
-        "segmentId": "",
-        "publicVapidKey": "BGH9wcHjx1iYORhlCS86iir7sMdfVf3ZV6uc74ERz4DEWwH_V6L7RU9Wtcmsp_AFWs2RVWs4LjzoSKTi7rF-uzY"
-      },
-      "prod": {
-        "env": "production",
-        "firebase": {
-          "apiKey": "AIzaSyDRPua331Q_howRoiAo4bTJFpac0jC_OSM",
-          "authDomain": "test-a2947.firebaseapp.com",
-          "databaseURL": "https://test-a2947.firebaseio.com",
-          "projectId": "test-a2947",
-          "storageBucket": "test-a2947.appspot.com",
-          "messagingSenderId": "35186611144",
-          "appId": "1:35186611144:web:4af435c0ea7b1f421fe6fd"
-        },
-        "sentryDsn": "",
-        "segmentId": "",
-        "publicVapidKey": "BGH9wcHjx1iYORhlCS86iir7sMdfVf3ZV6uc74ERz4DEWwH_V6L7RU9Wtcmsp_AFWs2RVWs4LjzoSKTi7rF-uzY"
-      }
-    }
   }
 }

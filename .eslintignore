@@ -3,9 +3,5 @@
 dist/**
 build/**
 src/index.html
-blueprints/**
 src/config.js
 functions/dist/**
-functions/test/mocha.opts
-functions/coverage
-functions/.nyc_output

@@ -24,6 +24,12 @@
 - node `^14.15.0`
 - npm `^6.0.0`
 
+## Repo Configuration
+1. Generate a [Service Account key within the Firebase Console](https://console.firebase.google.com/project/test-a2947/settings/serviceaccounts/adminsdk)
+1. Set `SERVICE_ACCOUNT` secret to the contents of the service account file within Github Actions secrets - this is required for deploying to preview channel
+1. Remove this section from the README - this setup only needs to be done once by the repo owner
+
+
 ## Before Starting
 1. Make sure you have `firebase-tools` installed an you are logged in (`firebase login`)
 1. Create a project within the Firebase Console (or have one prepared to use)

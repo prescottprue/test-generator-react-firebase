@@ -108,14 +108,14 @@ jobs:
           yarn build
 
       - name: Message Missing Secret
-        if: ${{ !secrets.SERVICE_ACCOUNT_EXISTS }}
+        if: secrets.SERVICE_ACCOUNT_EXISTS === 'false'
         run: |
           message="SERVICE_ACCOUNT secret must be set to deploy to preview channel - skipping"
           ::warning title=SERVICE_ACCOUNT secret missing::{message}
 
       - name: Deploy to Firebase hosting preview channel
         uses: FirebaseExtended/action-hosting-deploy@v0
-        if: ${{ secrets.SERVICE_ACCOUNT_EXISTS }}
+        if: secrets.SERVICE_ACCOUNT_EXISTS === 'true'
         id: preview-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

@@ -43,7 +43,7 @@
     "@fontsource/roboto": "^4.5.1",
     "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
-    "@mui/styles": "^5.0.1",
+    "@mui/styles": "^5.2.2",
     "@sentry/browser": "^6.13.3",
     "firebase": "^9.5.0",
     "notistack": "^2.0.3",

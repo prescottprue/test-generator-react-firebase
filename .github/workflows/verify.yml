@@ -106,7 +106,17 @@ jobs:
         run: |
           yarn build
 
+      - name: Build App
+        run: |
+          yarn build
+
+      - name: Build App
+        if: ${{ !secrets.SERVICE_ACCOUNT }}
+        run: |
+          echo "SERVICE_ACCOUNT secret is required to deploy to preview channel"
+
       - name: Deploy to Firebase hosting preview channel
+        if: ${{ secrets.SERVICE_ACCOUNT }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         id: preview-deploy
         with:

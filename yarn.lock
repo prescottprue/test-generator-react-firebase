@@ -6026,10 +6026,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress-firebase@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/cypress-firebase/-/cypress-firebase-2.1.0.tgz#83a9de3aa5a123bff2cad105343080383240e516"
-  integrity sha512-OmJUep4s2KURY26rhD/+y2kjKas2wAnvJueiEHvamqlyDkWJXPa3pvhcQCN2cDY2F01Yl4b5DRcTF9Dx+e6vFw==
+cypress-firebase@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/cypress-firebase/-/cypress-firebase-2.1.1.tgz#7f9cb6481485b44588b1b9c977c50ee4b0f834dc"
+  integrity sha512-hVHkdm02HZYULBVOWDYl7r8d3tSMvD1SepLGUANPjGIajblJbTNufxSjntv1uXU8/6O6KCgJstPib5ziMdU4rg==
 
 cypress@^9.1.0:
   version "9.1.0"

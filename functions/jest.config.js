@@ -7,5 +7,5 @@ module.exports = {
   resolver: 'jest-node-exports-resolver',
   setupFilesAfterEnv: ['./scripts/testSetup.ts'],
   coverageReporters: ['lcov', 'text'],
-  collectCoverageFrom: ['./src/**/*.js']
+  collectCoverageFrom: ['./src/**']
 }

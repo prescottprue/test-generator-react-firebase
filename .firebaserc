@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "test-a2947",
-    "main": "test-a2947",
-    "prod": "test-a2947"
+    "default": "redux-firebasev3",
+    "main": "redux-firebasev3",
+    "prod": "redux-firebasev3"
   }
 }

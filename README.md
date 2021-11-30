@@ -63,7 +63,7 @@ While developing, you will probably rely mostly on `yarn start`; however, there 
 
 ## Gotchas
 * Preview Channels are only for hosting - functions changes will not be included (functions will point to your default project)
-* UI Tests run in verify workflow using emulators (including functions)
+* UI Tests run in verify workflow use emulators (including functions)
 
 ## Config Files
 

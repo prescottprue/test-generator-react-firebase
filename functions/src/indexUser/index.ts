@@ -1,5 +1,5 @@
  
-import { getFirestore } from 'firebase-admin/getFirestore'
+import { getFirestore } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions'
 
 /**
@@ -17,9 +17,7 @@ async function indexUser(
   context: functions.EventContext
 ): Promise<null> {
   const { userId } = context.params || {}
-  const publicProfileRef = getFirestore()
-    .collection('users_public')
-    .doc(userId)
+  const publicProfileRef = getFirestore().doc(`users_public/${userId}`)
 
   // User Profile being deleted
   if (!change.after.exists) {

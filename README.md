@@ -189,7 +189,7 @@ Cypress is used to write and run UI tests which live in the `cypress` folder. [`
 1. Run yarn `test:ui:emulate`
 1. Visit "Runs" tab of Cypress Test Runner
 1. Setup a Project for recording (will save setting to `cypress.json`)
-1. Save Record key as `CYPRESS_KEY` secret within CI settings
+1. Save Record key as `CYPRESS_RECORD_KEY` secret within CI settings
 
 #### Running Hosted Tests 
 1. Visit the [Firebase Console](https://console.firebase.google.com/)

@@ -89,7 +89,7 @@ jobs:
           echo "FIREBASE_AUTH_EMULATOR_HOST=$(cat firebase.json | jq .emulators.auth.port)" >> $GITHUB_ENV
           echo "FIREBASE_DATABASE_EMULATOR_HOST=$(cat firebase.json | jq .emulators.database.port)" >> $GITHUB_ENV
           echo "FIRESTORE_EMULATOR_HOST=localhost:$(cat firebase.json | jq .emulators.firestore.port)" >> $GITHUB_ENV
-          echo "SERVICE_ACCOUNT_EXISTS=$(if [[ -v $SERVICE_ACCOUNT ]]; then echo true; else echo false; fi)" >> $GITHUB_ENV
+          echo "SERVICE_ACCOUNT_EXISTS=$(if [[ -v $SERVICE_ACCOUNT ]]; then echo 'true'; else echo 'false'; fi)" >> $GITHUB_ENV
 
           # Run tests and generate coverage
           yarn functions:test:cov -- --project $GCLOUD_PROJECT # Run unit tests with coverage
@@ -108,14 +108,14 @@ jobs:
           yarn build
 
       - name: Message Missing Secret
-        if: ${{ secrets.SERVICE_ACCOUNT_EXISTS }}
+        if: ${{ !secrets.SERVICE_ACCOUNT_EXISTS }}
         run: |
           message="SERVICE_ACCOUNT secret must be set to deploy to preview channel - skipping"
           ::warning title=SERVICE_ACCOUNT secret missing::{message}
 
       - name: Deploy to Firebase hosting preview channel
         uses: FirebaseExtended/action-hosting-deploy@v0
-        if: ${{ !secrets.SERVICE_ACCOUNT_EXISTS }}
+        if: ${{ secrets.SERVICE_ACCOUNT_EXISTS }}
         id: preview-deploy
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"

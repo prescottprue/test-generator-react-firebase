@@ -5,3 +5,6 @@ build/**
 src/index.html
 src/config.js
 functions/dist/**
+functions/test/mocha.opts
+functions/coverage
+functions/.nyc_output

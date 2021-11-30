@@ -16,36 +16,25 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     timeout-minutes: 20
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
 
       - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2.5.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
       - name: Get Library Versions For Binary Caching
         id: cache-settings
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
           echo "::set-output name=firebase-tools::$(yarn list -s --depth=0 --pattern firebase-tools | tail -n 1 | sed 's/.*@//g')"
 
       - name: Cache Firebase Emulator Binaries
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/firebase/emulators
           key: ${{ runner.os }}-firebase-${{ steps.cache-settings.outputs.firebase-tools }}
-
-      - name: Cache App Dependencies
-        uses: actions/cache@v2.1.6
-        with:
-          path: ${{ steps.cache-settings.outputs.dir }}
-          key: ${{ runner.os }}-app-${{ hashFiles('yarn.lock') }}
 
       - name: Install Dependencies
         env:
@@ -87,7 +76,7 @@ jobs:
               exit 1
           fi
 
-          bin/generate-firebase-sdk-config.js --file ./config/default.json
+          bin/get-firebase-sdk-config.js --file ./config/default.json
 
       - name: Verify App
         run: |
@@ -139,37 +128,31 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
 
       - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2.5.0
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
       - name: Get Library Versions For Binary Caching
         id: cache-settings
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
           echo "::set-output name=firebase-tools::$(yarn list -s --depth=0 --pattern firebase-tools | tail -n 1 | sed 's/.*@//g')"
           echo "::set-output name=cypress::$(yarn list -s --depth=0 --pattern cypress | tail -n 1 | sed 's/.*@//g')"
 
       - name: Cache Firebase Emulator Binaries
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/firebase/emulators
           key: ${{ runner.os }}-firebase-${{ steps.cache-settings.outputs.firebase-tools }}
 
       - name: Cache Cypress Binary
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/Cypress
           key: ${{ runner.os }}-cypress-${{ steps.cache-settings.outputs.cypress }}
-
-      - name: Cache App Dependencies
-        uses: actions/cache@v2.1.6
-        with:
-          path: ${{ steps.cache-settings.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
 
       - name: Install Dependencies
         env:
@@ -197,7 +180,7 @@ jobs:
       - name: Generate Firebase SDK config for ${{ env.GCLOUD_PROJECT }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: bin/generate-firebase-sdk-config.js --file ./config/default.json
+        run: bin/get-firebase-sdk-config.js --file ./config/default.json
 
       # Download Built app since we are testing locally
       - name: Download Build Artifact

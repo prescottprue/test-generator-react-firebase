@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useFirebase } from 'react-redux-firebase'
+import { useAuth } from 'reactfire'
 import { Link } from 'react-router-dom'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
@@ -9,7 +9,7 @@ import { ACCOUNT_PATH } from 'constants/paths'
 
 function AccountMenu() {
   const [anchorEl, setMenu] = useState(null)
-  const firebase = useFirebase()
+  const auth = useAuth()
 
   function closeAccountMenu() {
     setMenu(null)
@@ -18,8 +18,9 @@ function AccountMenu() {
     setMenu(e.target)
   }
   function handleLogout() {
-    closeAccountMenu() // redirect to '/' handled by UserIsAuthenticated HOC
-    return firebase.logout()
+    closeAccountMenu()
+    // redirect to '/login' will occur if on a route where auth is required
+    return auth.signOut()
   }
 
   return (

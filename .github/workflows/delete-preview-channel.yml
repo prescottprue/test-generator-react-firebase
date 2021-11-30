@@ -15,17 +15,18 @@ env:
 
 jobs:
   check:
-    name: Delete Channel
+    name: Delete Preview Channel
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-        uses: actions/setup-node@v2.4.1
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v2.5.0
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -36,4 +37,4 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
-          ./bin/remove-preview-channel.js --pullRequest=$PR_NUMBER
+          ./bin/delete-preview-channel.js --pullRequest=$PR_NUMBER

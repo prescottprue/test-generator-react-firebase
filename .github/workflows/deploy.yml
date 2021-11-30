@@ -3,39 +3,40 @@ name: Deploy
 on:
   push:
     branches:
-      - master
-      - prod
+      - main
+
+concurrency:
+  group: deploy-${{ github.ref }}
+
+env:
+  NODE_VERSION: 14.x
 
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     timeout-minutes: 20
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
 
       - name: Setup Node
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2.5.0
         with:
-          node-version: 14
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
       - name: Get Library Versions For Binary Caching
         id: cache-settings
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
+          echo "::set-output name=firebase-tools::$(yarn list -s --depth=0 --pattern firebase-tools | tail -n 1 | sed 's/.*@//g')"
 
-      - name: Cache App Dependencies
-        uses: actions/cache@v2.1.6
+      - name: Cache Firebase Emulator Binaries
+        uses: actions/cache@v2.1.7
         with:
-          path: ${{ steps.cache-settings.outputs.dir }}
-          key: ${{ runner.os }}-app-${{ hashFiles('yarn.lock') }}
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-${{ steps.cache-settings.outputs.firebase-tools }}
 
       - name: Install Dependencies
         env:
@@ -75,11 +76,22 @@ jobs:
               exit 1
           fi
 
-          bin/generate-firebase-sdk-config.js --file ./config/default.json
+          bin/get-firebase-sdk-config.js --file ./config/default.json
 
       - name: Verify App
         run: |
           yarn lint # Check for lint in app code
+
+      # NOTE: Skipped because of "Channel credentials must be a ChannelCredentials object" error from firebase-admin
+      # See https://github.com/firebase/firebase-tools/issues/2207 for more info
+      # - name: Unit Test Functions
+      #   run: |
+      #     yarn functions:test:cov -- --project $GCLOUD_PROJECT # Run unit tests with coverage
+
+      # - name: Upload Test Coverage For Functions
+      #   # NOTE: Token will need to be added if using codecov with private repos
+      #   run: |
+      #     bash <(curl -s https://codecov.io/bash) -f functions/coverage/lcov.info || echo 'Codecov failed to upload'
 
       - name: Build Functions
         run: |

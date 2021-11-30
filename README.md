@@ -1,6 +1,7 @@
 # test-generator-react-firebase
 
 [![Build Status][build-status-image]][build-status-url]
+[![Code Coverage][coverage-image]][coverage-url]
 [![License][license-image]][license-url]
 [![Code Style][code-style-image]][code-style-url]
 
@@ -109,11 +110,7 @@ The application structure presented in this boilerplate is **fractal**, where fu
 │   │       ├── index.js         # Route definitions and async split points
 │   │       ├── components       # Presentational React Components
 │   │       └── routes/**        # Fractal sub-routes (** optional)
-│   ├── store                    # Redux-specific pieces
-│   │   ├── createStore.js       # Create and instrument redux store
-│   │   └── reducers.js          # Reducer registry and injection
 │   └── utils                    # General Utilities (used throughout application)
-│       ├── components.js        # Utilities for building/implementing React components
 │       ├── form.js              # Utilities for forms (validation)
 │       └── router.js            # Utilities for routing such as those that redirect back to home if not logged in
 ├── .env                         # Local Environment settings (automatically loaded up by npm scripts)
@@ -256,6 +253,8 @@ For more options on CI settings checkout the [firebase-ci docs](https://github.c
 
 [build-status-image]: https://img.shields.io/github/workflow/status/prescottprue/test-generator-react-firebase/Deploy?style=flat-square
 [build-status-url]: https://github.com/prescottprue/test-generator-react-firebase/actions
+[coverage-image]: https://img.shields.io/codecov/c/github/prescottprue/test-generator-react-firebase.svg?style=flat-square
+[coverage-url]: https://codecov.io/gh/prescottprue/test-generator-react-firebase
 [license-image]: https://img.shields.io/github/license/prescottprue/test-generator-react-firebase?style=flat-square
 [license-url]: https://github.com/prescottprue/test-generator-react-firebase/blob/master/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square

@@ -3,7 +3,7 @@ name: Verify (dependabot)
 on: [pull_request]
 
 concurrency:
-  group: verify-dependabot-${{ github.head_ref }}
+  group: verify-${{ github.head_ref }}
   cancel-in-progress: true
 
 env:
@@ -17,30 +17,24 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
 
-      - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v2.4.1
+      - name: Setup Node
+        uses: actions/setup-node@v2.5.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: 14
+          cache: 'yarn'
 
       - name: Get Library Versions For Binary Caching
         id: cache-settings
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
           echo "::set-output name=firebase-tools::$(yarn list -s --depth=0 --pattern firebase-tools | tail -n 1 | sed 's/.*@//g')"
 
       - name: Cache Firebase Emulator Binaries
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/firebase/emulators
           key: ${{ runner.os }}-firebase-${{ steps.cache-settings.outputs.firebase-tools }}
-
-      - name: Cache App Dependencies
-        uses: actions/cache@v2.1.6
-        with:
-          path: ${{ steps.cache-settings.outputs.dir }}
-          key: ${{ runner.os }}-app-${{ hashFiles('yarn.lock') }}
 
       - name: Install Dependencies
         env:

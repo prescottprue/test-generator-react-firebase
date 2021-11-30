@@ -1,5 +1,4 @@
- 
-import { getFirestore } from 'firebase-admin/firestore'
+import { getFirestore, DocumentSnapshot } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions'
 
 /**
@@ -13,7 +12,7 @@ import * as functions from 'firebase-functions'
  * @returns Resolves with user's profile
  */
 async function indexUser(
-  change: functions.Change<admin.firestore.DocumentSnapshot>,
+  change: functions.Change<DocumentSnapshot>,
   context: functions.EventContext
 ): Promise<null> {
   const { userId } = context.params || {}

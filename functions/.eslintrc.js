@@ -7,6 +7,14 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['node', 'jsdoc', '@typescript-eslint'],
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.ts'],
+        moduleDirectory: ['node_modules', '/']
+      }
+    }
+  },
   rules: {
     'no-console': 0,
     'jsdoc/newline-after-description': 0,
@@ -25,9 +33,9 @@ module.exports = {
           'firebase-admin/project-management',
           'firebase-admin/remote-config',
           'firebase-admin/instanceId',
-          'firebase-admin/machine-learning',
-        ],
-      },
+          'firebase-admin/machine-learning'
+        ]
+      }
     ],
     'jsdoc/require-param-type': 0,
     'jsdoc/require-returns-type': 0,

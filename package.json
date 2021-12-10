@@ -57,7 +57,7 @@
     "stackdriver-errors-js": "^0.12.0"
   },
   "devDependencies": {
-    "@craco/craco": "6.3.0",
+    "@craco/craco": "6.4.3",
     "@sentry/cli": "^1.69.1",
     "@testing-library/cypress": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
